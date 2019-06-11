@@ -72,8 +72,8 @@ class Canvas:
 
     # inspecting functions (A-Z)
 
-    def show(self, refs=False):
-        if refs:
+    def show(self, axis=False):
+        if axis:
             x_order = math.floor(math.log10(self._w))
             y_order = math.floor(math.log10(self._h))
             def c1(yi): return str(flip_lst_y(self.graph, yi)).zfill(y_order+1)
@@ -133,8 +133,8 @@ def route_assist(x1, x2, y1, y2):
         (1, -1),
         (0, -1),
     ]
-    dx = x2 - x1
-    dy = y2 - y1
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
     n = max(dx, dy)
     cx = x1
     cy = y1
