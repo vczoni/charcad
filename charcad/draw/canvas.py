@@ -1,6 +1,7 @@
 # canvas module
 
 from charcad.draw.utils import force_list
+from charcad.draw.point import Point
 import math
 
 
@@ -47,6 +48,7 @@ class Canvas:
 
     def drawroute(self, x1, y1, x2, y2, marker='.', origins=True, origin_marker='x'):
         route = route_assist(x1, x2, y1, y2)
+        print(route)
         self.drawpoint(route, marker=marker)
         if origins:
             self.drawpoint([(x1, y1), (x2, y2)], marker=origin_marker)
@@ -60,7 +62,9 @@ class Canvas:
         possible_integer = p[0]
         if isinstance(possible_integer, int):
             self._point_assist(*p, marker=marker)
-        elif isinstance(possible_integer, list) or isinstance(possible_integer, tuple):
+        elif (isinstance(possible_integer, list)
+              or isinstance(possible_integer, Point)
+              or isinstance(possible_integer, tuple)):
             for item in p:
                 self.drawpoint(*item, **kw)
 
@@ -113,44 +117,49 @@ class DrawingChars:
         self.di = '╳'
 
 
+def calc_distance(p1, p2, factors=(1, 1)):
+    dx = (p2[0] - p1[0]) * factors[0]
+    dy = (p2[1] - p1[1]) * factors[1]
+    return math.hypot(dx, dy)
+
+
 def flip_lst_y(lst, yi):
     return len(lst) - yi - 1
 
 
-def route_assist(x1, x2, y1, y2):
-    if x1 > x2:
-        aux = x1
-        x1 = x2
-        x2 = aux
-        aux = y1
-        y1 = y2
-        y2 = aux
-    directions = [math.pi/2, math.pi/4, 0, -math.pi/4, -math.pi/2]
+def route_assist(x1, x2, y1, y2, factors=(25/60, 1)):
     movements = [
-        (0, 1),
-        (1, 1),
-        (1, 0),
-        (1, -1),
-        (0, -1),
+        Point(0, 1),
+        Point(1, 1),
+        Point(1, 0),
+        Point(1, -1),
+        Point(0, -1),
+        Point(-1, -1),
+        Point(-1, 0),
+        Point(-1, 1),
     ]
-    dx = abs(x2 - x1)
-    dy = abs(y2 - y1)
-    n = max(dx, dy)
+    route = list()
+    target_point = Point(x2, y2)
     cx = x1
     cy = y1
-    route = list()
-    for _ in range(n):
-        dx = x2 - cx
-        dy = y2 - cy
-        if dx > 0:
-            a = math.atan(dy / dx)
-        elif dx == 0:
-            a = math.atan(dy * math.inf)
-        else:
-            raise Exception("cx is bigger than x2!")
-        diff = [abs(x-a) for x in directions]
-        idx = diff.index(min(diff))
+    arrived = cx == x2 & cy == y2
+    while not arrived:
+        current_point = Point(cx, cy)
+        next_points = [current_point + m for m in movements]
+        distances = [calc_distance(p, target_point, factors)
+                     for p in next_points]
+        print('movements')
+        print(movements)
+        print('current_point')
+        print(current_point)
+        print('target_point')
+        print((x2, y2))
+        print('distances')
+        print(distances)
+        print('  ')
+        idx = distances.index(min(distances))
         cx += movements[idx][0]
         cy += movements[idx][1]
-        route.append((cx, cy))
+        route.append(Point(cx, cy))
+        arrived = (cx == x2) & (cy == y2)
     return route
