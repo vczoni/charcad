@@ -5,7 +5,10 @@ class Point:
 
     def __add__(self, other):
         return Point(self.x + other.x, self.y + other.y)
-    
+
+    def __sub__(self, other):
+        return Point(self.x - other.x, self.y - other.y)
+
     def __eq__(self, other):
         return (self.x == other.x) & (self.y == other.y)
 
@@ -14,3 +17,6 @@ class Point:
 
     def __repr__(self):
         return '({}, {})'.format(self.x, self.y)
+
+    def __round__(self, n=0):
+        return Point(round(self.x, n), round(self.y, n))

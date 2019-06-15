@@ -8,6 +8,7 @@ import math
 class Canvas:
     def __init__(self):
         self.chrs = DrawingChars()
+        self.objects = dict()
 
     # initializers (logical order)
 
@@ -48,7 +49,8 @@ class Canvas:
 
     def drawroute(self, x1, y1, x2, y2, marker='.', origins=True, origin_marker='x'):
         route = route_assist(x1, x2, y1, y2)
-        print(route)
+        obj_name = 'route_' + str(len(self.objects))
+        self.objects.update({obj_name: route})
         self.drawpoint(route, marker=marker)
         if origins:
             self.drawpoint([(x1, y1), (x2, y2)], marker=origin_marker)
@@ -57,6 +59,7 @@ class Canvas:
         args = {
             'marker': '.'
         }
+        
         args.update(kw)
         marker = args['marker']
         possible_integer = p[0]
