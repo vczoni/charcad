@@ -6,7 +6,12 @@ My graphic engine
 
 - 2. develop a better routing method
 
-- 3. develop more advanced routing:
+- 3. start documenting
+	- a. create a md documentation
+	- b. add docstrings in all modules, classes and methods
+	- c. create a ppt presentation (optional)
+
+- 4. develop more advanced routing:
 	- a. with tickness
 	- b. with random paths
 

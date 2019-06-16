@@ -1,89 +1,110 @@
 # canvas module
 
-from charcad.draw.utils import force_list
-from charcad.draw.point import Point
 import math
+
+from charcad.draw.point import Point
+from charcad.draw.route import Route
 
 
 class Canvas:
-    def __init__(self):
-        self.chrs = DrawingChars()
+    def __init__(self, w=None, h=None):
         self.objects = dict()
+        if not w is None and not h is None:
+            self.new(w, h)
 
     # initializers (logical order)
 
-    def new(self, w, h, frame=True):
+    def new(self, w, h):
         self.w = w
         self._w = w + 1
         self.h = h
         self._h = h + 1
-        self.graph = list()
-        self.grid = list()
-        self.reset_graph()
-        if frame:
-            self.frame()
+        self.reset_grid()
 
-    def reset_graph(self):
-        for _ in range(self.h + 1):
-            self.graph.append(' ' * (self._w))
+    def reset_grid(self):
+        self.grid = list()
+        for _ in range(self._h):
             self.grid.append(list(range(self._w)))
 
-    def frame(self):
-        ud = self.chrs.ud
-        ur = self.chrs.ur
-        dr = self.chrs.dr
-        ru = self.chrs.ru
-        rd = self.chrs.rd
-        rl = self.chrs.lr
-        midspace = (self._w - 2)
-        for i in range(len(self.graph)):
-            y = flip_lst_y(self.graph, i)
-            if y == 0:
-                self.graph[i] = dr + midspace*rl + ru
-            elif y < len(self.graph) - 1:
-                self.graph[i] = ud + midspace*' ' + ud
-            elif y == len(self.graph) - 1:
-                self.graph[i] = ur + midspace*rl + rd
+    # draw methods (A-Z)
 
-    # draw functions (A-Z)
-
-    def drawroute(self, x1, y1, x2, y2, marker='.', origins=True, origin_marker='x'):
-        route = route_assist(x1, x2, y1, y2)
-        obj_name = 'route_' + str(len(self.objects))
-        self.objects.update({obj_name: route})
-        self.drawpoint(route, marker=marker)
+    def drawroute(self, *p, marker='.', origins=True, origin_marker='x',
+                  seek_angle=False):
+        route = Route()
+        route.create_route(*p, marker=marker, seek_angle=seek_angle)
         if origins:
-            self.drawpoint([(x1, y1), (x2, y2)], marker=origin_marker)
+            vals = [*route.objects.values()]
+            keys = [*route.objects]
+            vals[0].marker = origin_marker
+            vals[-1].marker = origin_marker
+            route.objects.update(dict(zip(keys, vals)))
+        self.add_object(route, 'route_'+str(len(self.objects)))
 
-    def drawpoint(self, *p, **kw):
-        args = {
-            'marker': '.'
-        }
-        
-        args.update(kw)
-        marker = args['marker']
-        possible_integer = p[0]
-        if isinstance(possible_integer, int):
-            self._point_assist(*p, marker=marker)
-        elif (isinstance(possible_integer, list)
-              or isinstance(possible_integer, Point)
-              or isinstance(possible_integer, tuple)):
+    def drawpoint(self, *p, marker='.'):
+        if isinstance(p[0], int):
+            self.add_point(Point(*p, marker=marker))
+        elif isinstance(p[0], (list, tuple)):
             for item in p:
-                self.drawpoint(*item, **kw)
+                self.drawpoint(*item, marker=marker)
+        elif isinstance(p[0], Point):
+            for item in p:
+                self.drawpoint(*item, item.marker)
 
-    def _point_assist(self, x=0, yi=0, marker='.'):
-        y = flip_lst_y(self.graph, yi)
-        ri = self.graph[y]
-        r = ri[0:x] + marker + ri[x+1:]
-        self.graph[y] = r
+    def frame(self, graph):
+        ud = chrs.ud
+        ur = chrs.ur
+        dr = chrs.dr
+        ru = chrs.ru
+        rd = chrs.rd
+        rl = chrs.lr
+        midspace = (self._w - 2)
+        for i in range(len(graph)):
+            y = flip_lst_y(graph, i)
+            if y == 0:
+                graph[i] = dr + midspace*rl + ru
+            elif y < len(graph) - 1:
+                graph[i] = ud + midspace*' ' + ud
+            elif y == len(graph) - 1:
+                graph[i] = ur + midspace*rl + rd
+        return graph
+
+    # aux methods
+
+    def add_object(self, obj, name):
+        self.objects.update({name: obj})
+
+    def add_point(self, p):
+        self.add_object(p, 'point_'+str(len(self.objects)))
+
+    def _object_printer(self, objects, graph):
+        for _, obj in objects.items():
+            if isinstance(obj, Point):
+                graph = self._point_printer(graph, obj)
+            elif isinstance(obj, (Route)):
+                graph = self._object_printer(obj.objects, graph)
+        return graph
+
+    def _point_printer(self, graph, point):
+        x = point.x
+        y = flip_lst_y(graph, point.y)
+        graph[y] = graph[y][0:x] + point.marker + graph[y][x+1:]
+        return graph
 
     # inspecting functions (A-Z)
 
-    def show(self, axis=False):
+    def show(self, axis=False, frame=True):
+        # init graph
+        graph = mkgraph(self._w, self._h)
+
+        # add frame (if requested)
+        if frame:
+            graph = self.frame(graph)
+
+        # add axis (if requested)
         if axis:
             x_order = math.floor(math.log10(self._w))
             y_order = math.floor(math.log10(self._h))
-            def c1(yi): return str(flip_lst_y(self.graph, yi)).zfill(y_order+1)
+            def c1(yi): return str(flip_lst_y(graph, yi)).zfill(y_order+1)
             rr = list()
             for n in range(x_order+1):
                 rri = ' ' * (y_order+1)
@@ -98,7 +119,12 @@ class Canvas:
         else:
             def c1(yi): return ''
             rr = ''
-        for i, r in enumerate(self.graph):
+
+        # draw objects in graph
+        graph = self._object_printer(self.objects, graph)
+
+        # print objects and axes
+        for i, r in enumerate(graph):
             print(c1(i) + r)
         for r in rr:
             print(r)
@@ -120,49 +146,15 @@ class DrawingChars:
         self.di = '╳'
 
 
-def calc_distance(p1, p2, factors=(1, 1)):
-    dx = (p2[0] - p1[0]) * factors[0]
-    dy = (p2[1] - p1[1]) * factors[1]
-    return math.hypot(dx, dy)
+chrs = DrawingChars()
+
+
+def mkgraph(w, h):
+    graph = list()
+    for _ in range(h):
+        graph.append(' ' * w)
+    return graph
 
 
 def flip_lst_y(lst, yi):
     return len(lst) - yi - 1
-
-
-def route_assist(x1, x2, y1, y2, factors=(25/60, 1)):
-    movements = [
-        Point(0, 1),
-        Point(1, 1),
-        Point(1, 0),
-        Point(1, -1),
-        Point(0, -1),
-        Point(-1, -1),
-        Point(-1, 0),
-        Point(-1, 1),
-    ]
-    route = list()
-    target_point = Point(x2, y2)
-    cx = x1
-    cy = y1
-    arrived = cx == x2 & cy == y2
-    while not arrived:
-        current_point = Point(cx, cy)
-        next_points = [current_point + m for m in movements]
-        distances = [calc_distance(p, target_point, factors)
-                     for p in next_points]
-        print('movements')
-        print(movements)
-        print('current_point')
-        print(current_point)
-        print('target_point')
-        print((x2, y2))
-        print('distances')
-        print(distances)
-        print('  ')
-        idx = distances.index(min(distances))
-        cx += movements[idx][0]
-        cy += movements[idx][1]
-        route.append(Point(cx, cy))
-        arrived = (cx == x2) & (cy == y2)
-    return route
