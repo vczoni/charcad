@@ -21,8 +21,10 @@ def clamp(val, minval, maxval):
 
 
 def force_list(var):
-    if not isinstance(var, list):
+    if isinstance(var, (int, float)):
         var = [var]
+    elif not isinstance(var, list):
+        var = list(var)
     return var
 
 

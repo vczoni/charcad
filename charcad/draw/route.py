@@ -8,10 +8,10 @@ class Route:
 
     def __init__(self):
         self.objects = dict()
-    
+
     def add_object(self, obj, name):
         self.objects.update({name: obj})
-    
+
     def add_point(self, p):
         self.add_object(p, 'point_'+str(len(self.objects)))
 
@@ -23,16 +23,16 @@ class Route:
     def connect(self, p1, p2, seek_angle=False, factors=(1, 1)):
         current_point = p1
         target_point = p2
-        target_angle = calc_angle(Vector(current_point), Vector(target_point))
+        target_vector = Vector(target_point-current_point)
         arrived = current_point == target_point
+        self.add_point(current_point)
         while not arrived:
             next_points = [current_point + m for m in movements]
             distances = [calc_distance(p, target_point, factors)
                          for p in next_points]
             if seek_angle:
-                next_angles = [calc_angle(Vector(p), Vector(target_point))-target_angle
+                next_angles = [calc_angle(Vector(target_point-current_point), target_vector)
                                for p in next_points]
-                
             else:
                 idx = distances.index(min(distances))
             current_point += movements[idx]

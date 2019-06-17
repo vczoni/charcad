@@ -2,13 +2,13 @@
 
 import math
 
+from charcad.draw.utils import force_list
 from charcad.draw.point import Point
 from charcad.draw.route import Route
 
 
 class Canvas:
     def __init__(self, w=None, h=None):
-        self.objects = dict()
         if not w is None and not h is None:
             self.new(w, h)
 
@@ -19,9 +19,10 @@ class Canvas:
         self._w = w + 1
         self.h = h
         self._h = h + 1
-        self.reset_grid()
+        self.reset()
 
-    def reset_grid(self):
+    def reset(self):
+        self.objects = dict()
         self.grid = list()
         for _ in range(self._h):
             self.grid.append(list(range(self._w)))
@@ -30,6 +31,10 @@ class Canvas:
 
     def drawroute(self, *p, marker='.', origins=True, origin_marker='x',
                   seek_angle=False):
+        p = list(p)
+        for i, item in enumerate(p):
+            if isinstance(item, (tuple, list)):
+                p[i] = Point(*item)
         route = Route()
         route.create_route(*p, marker=marker, seek_angle=seek_angle)
         if origins:
@@ -92,7 +97,7 @@ class Canvas:
 
     # inspecting functions (A-Z)
 
-    def show(self, axis=False, frame=True):
+    def show(self, axes=False, frame=True):
         # init graph
         graph = mkgraph(self._w, self._h)
 
@@ -100,11 +105,14 @@ class Canvas:
         if frame:
             graph = self.frame(graph)
 
-        # add axis (if requested)
-        if axis:
+        # add axes (if requested)
+        axes = force_list(axes)
+        if len(axes) == 1:
+            axes += axes
+        # x axis
+        if axes[0]:
             x_order = math.floor(math.log10(self._w))
             y_order = math.floor(math.log10(self._h))
-            def c1(yi): return str(flip_lst_y(graph, yi)).zfill(y_order+1)
             rr = list()
             for n in range(x_order+1):
                 rri = ' ' * (y_order+1)
@@ -117,8 +125,14 @@ class Canvas:
                     rri += s
                 rr.append(rri)
         else:
-            def c1(yi): return ''
             rr = ''
+        # y axis
+        if axes[1]:
+            y_order = math.floor(math.log10(self._h))
+            def c1(yi): return str(flip_lst_y(graph, yi)).zfill(y_order+1)
+        else:
+            def c1(yi): return ''
+            
 
         # draw objects in graph
         graph = self._object_printer(self.objects, graph)

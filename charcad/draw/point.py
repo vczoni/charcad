@@ -5,7 +5,7 @@ class Point:
         self.marker = marker
 
     def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
+        return Point(self.x + other.x, self.y + other.y, marker=self.marker)
 
     def __sub__(self, other):
         return Point(self.x - other.x, self.y - other.y)
@@ -29,7 +29,7 @@ class Point:
         return [self.x, self.y][item]
 
     def __repr__(self):
-        return 'point({}, {})'.format(self.x, self.y)
+        return 'point({}, {}, {})'.format(self.x, self.y, self.marker)
 
     def __floor__(self):
         return Point(int(self.x), int(self.y))
