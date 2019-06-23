@@ -40,7 +40,9 @@ class Vector:
     def __repr__(self):
         return "vector[{}, {}]".format(self.p, self.origin)
 
-    def angle(self, other):
+    def angle(self, other=None):
+        if other is None:
+            other = Vector(1, 0)
         return calc_angle(self, other)
 
     def dot(self, other):
