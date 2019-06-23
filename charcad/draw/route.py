@@ -1,7 +1,9 @@
 
+import math
+
 from charcad.draw.point import Point
 from charcad.draw.vector import Vector
-from charcad.draw.utils import calc_angle, calc_distance
+from charcad.draw.utils import calc_angle, calc_distance, force_list
 
 
 class Route:
@@ -31,8 +33,14 @@ class Route:
             distances = [calc_distance(p, target_point, factors)
                          for p in next_points]
             if seek_angle:
-                next_angles = [calc_angle(Vector(target_point-current_point), target_vector)
-                               for p in next_points]
+                try:
+                    angles = [calc_angle(Vector(target_point-p), target_vector)
+                              for p in next_points]
+                except:
+                    angles = [calc_angle(Vector(target_point-current_point), target_vector)
+                              for p in next_points]
+                idx = normalize_and_compare(vectors=[distances, angles],
+                                            limits=['self', (0, math.pi/8)], fun='min')
             else:
                 idx = distances.index(min(distances))
             current_point += movements[idx]
@@ -50,3 +58,31 @@ movements = [
     Point(-1, 0),
     Point(-1, 1),
 ]
+
+
+def normalize(vector, limits):
+    for i, item in enumerate(vector):
+        vector[i] = (vector[i] - limits[0])/(limits[1] - limits[0])
+    return vector
+
+
+def normalize_and_compare(vectors, limits, fun='min'):
+    for i, limit in enumerate(limits):
+        if isinstance(limit, str):
+            if limit == 'self':
+                limits[i] = (min(vectors[i]), max(vectors[i]))
+            else:
+                raise Exception(limit.join("''") + ' is not supported.')
+    nvectors = list()
+    for vector, limit in zip(vectors, limits):
+        nvectors.append(normalize(vector, limit))
+    sum_vector = [0 for _ in range(len(nvectors[0]))]
+    for nvector in nvectors:
+        sum_vector = [x+y for x, y in zip(nvector, sum_vector)]
+    if fun == 'min':
+        target = min(sum_vector)
+    elif fun == 'max':
+        target = max(sum_vector)
+    else:
+        raise Exception(fun.join("''") + ' is not supported.')
+    return sum_vector.index(target)

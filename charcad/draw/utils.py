@@ -7,7 +7,7 @@ import math
 # fuctions
 
 def calc_angle(v1, v2):
-    return math.acos(clamp(v1.dot(v2)/abs(v1)*abs(v2), 0, 1))
+    return math.acos(clamp(v1.dot(v2)/(abs(v1)*abs(v2)), 0, 1))
 
 
 def calc_distance(p1, p2, factors=(1, 1)):
