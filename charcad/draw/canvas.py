@@ -36,7 +36,7 @@ class Canvas:
             if isinstance(item, (tuple, list)):
                 p[i] = Point(*item)
         route = Route()
-        route.create_route(*p, marker=marker, seek_angle=seek_angle)
+        route.create_route(*p, marker=marker)
         if origins:
             vals = [*route.objects.values()]
             keys = [*route.objects]
