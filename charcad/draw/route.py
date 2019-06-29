@@ -1,4 +1,5 @@
 
+from charcad.draw.gpharray import GraphicObjectArray
 from charcad.draw.point import Point
 from charcad.draw.vector import Vector
 from charcad.draw.utils import calc_angle, calc_distance
@@ -7,13 +8,16 @@ from charcad.draw.utils import calc_angle, calc_distance
 class Route:
 
     def __init__(self):
-        self.objects = dict()
+        self.objects = GraphicObjectArray()
 
-    def add_object(self, obj, name):
-        self.objects.update({name: obj})
+    def __repr__(self):
+        return 'Route at <%s>' % id(self)
+
+    def add_object(self, obj):
+        self.objects.add(obj)
 
     def add_point(self, p):
-        self.add_object(p, 'point_'+str(len(self.objects)))
+        self.add_object(p)
 
     def create_route(self, *points, marker='.', factors=(1, 1)):
         for point, next_point in zip(points[0:-1], points[1:]):

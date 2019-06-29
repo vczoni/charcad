@@ -29,7 +29,7 @@ class Point:
         return [self.x, self.y][item]
 
     def __repr__(self):
-        return 'point({}, {}, {})'.format(self.x, self.y, self.marker)
+        return 'Point({}, {}, {})'.format(self.x, self.y, self.marker)
 
     def __floor__(self):
         return Point(int(self.x), int(self.y))

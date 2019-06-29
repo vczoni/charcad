@@ -2,9 +2,11 @@
 
 import math
 
-from charcad.draw.utils import force_list
+from charcad.draw.gpharray import GraphicObjectArray
 from charcad.draw.point import Point
 from charcad.draw.route import Route
+
+from charcad.draw.utils import force_list
 
 
 class Canvas:
@@ -22,7 +24,7 @@ class Canvas:
         self.reset()
 
     def reset(self):
-        self.objects = dict()
+        self.objects = GraphicObjectArray()
         self.grid = list()
         for _ in range(self._h):
             self.grid.append(list(range(self._w)))
@@ -85,7 +87,7 @@ class Canvas:
         for _, obj in objects.items():
             if isinstance(obj, Point):
                 graph = self._point_printer(graph, obj)
-            elif isinstance(obj, (Route)):
+            elif isinstance(obj, Route):
                 graph = self._object_printer(obj.objects, graph)
         return graph
 
@@ -132,7 +134,6 @@ class Canvas:
             def c1(yi): return str(flip_lst_y(graph, yi)).zfill(y_order+1)
         else:
             def c1(yi): return ''
-            
 
         # draw objects in graph
         graph = self._object_printer(self.objects, graph)
