@@ -1,4 +1,6 @@
-class Point:
+from charcad.draw.graphic_object import GraphicObject
+
+class Point(GraphicObject):
     def __init__(self, x, y, marker='.'):
         self.x = x
         self.y = y

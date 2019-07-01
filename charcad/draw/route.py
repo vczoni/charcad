@@ -1,11 +1,12 @@
+# route
 
-from charcad.draw.gpharray import GraphicObjectArray
+from charcad.draw.graphic_object import GraphicObject, GraphicObjectArray
 from charcad.draw.point import Point
 from charcad.draw.vector import Vector
 from charcad.draw.utils import calc_angle, calc_distance
 
 
-class Route:
+class Route(GraphicObject):
 
     def __init__(self):
         self.objects = GraphicObjectArray()
@@ -27,7 +28,6 @@ class Route:
     def connect(self, p1, p2, factors=(1, 1)):
         current_point = p1
         target_point = p2
-        target_vector = Vector(target_point-current_point)
         arrived = current_point == target_point
         self.add_point(current_point)
         while not arrived:

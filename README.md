@@ -2,6 +2,8 @@ My graphic engine
 
 #TODO
 
+- 0. create the setup for the package
+
 - 1. create an universal object printer
 	- maybe create object Types (for later...)
 
