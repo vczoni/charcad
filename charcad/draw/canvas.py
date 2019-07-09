@@ -31,7 +31,9 @@ class Canvas:
     def draw_in_graph(self):
         self.graph.add_objects(self.objects)
 
-    def drawroute(self, *p, marker='.', origin_marker='x'):
+    def drawroute(self, *p, marker='.', origin_marker=None):
+        if origin_marker is None:
+            origin_marker = marker
         p = list(p)
         for i, item in enumerate(p):
             if isinstance(item, (tuple, list)):
@@ -54,7 +56,7 @@ class Canvas:
 
     def show(self, axes=False, frame=False):
         self.draw_in_graph()
-        self.graph.print(frame=frame)
+        self.graph.print(axes=axes, frame=frame)
 
 
 class Graph:
@@ -92,17 +94,61 @@ class Graph:
     def inspect(self):
         [print(item) for item in [row for row in self.grid]]
 
-    def print(self, frame=False):
+    def print(self, frame=False, axes=False):
         grph = deepcopy(self)
         if frame:
-            grphlen = len(grph.grid[0])
-            for i, item in enumerate(grph.grid):
-                grph.grid[i] = [chrs.ud] + item + [chrs.ud]
-            li = [[chrs.ur] + grphlen * [chrs.lr] + [chrs.rd]]
-            lf = [[chrs.dr] + grphlen * [chrs.lr] + [chrs.ru]]
-            grph.grid = li + grph.grid + lf
+            grph = add_frame(grph)
+        if axes:
+            grph = add_axes(grph)
         print(grph)
 
     def reset(self):
         for _ in range(self.h):
             self.grid.append([' '] * self.w)
+
+
+def add_axes(grph):
+    hlen = len(grph.grid)
+    wlen = len(grph.grid[0])
+
+    # axis order of gratness
+    yg = math.floor(math.log10(hlen)) + 1
+    xg = math.floor(math.log10(wlen)) + 1
+
+    # check offset (caused by frame)
+    offset_h = int((hlen - grph.h) / 2)
+    offset_w = int((wlen - grph.w) / 2)
+
+    # y axis (with frame and axis compensation)
+    yaxis = (
+        [' ' * yg] * offset_h
+        + [str(grph.h - y - 1).zfill(yg) for y in range(grph.h)]
+        + [' ' * yg] * offset_h
+    )
+
+    # x axis (with frame and axis compensation)
+    xaxis = list()
+    for i in range(xg):
+        n = 10**i
+        xaxis.append(
+            [' ' * (yg + offset_w)]
+            + [str(int(x/n) % 10) if (x % n) ==
+               0 else ' ' for x in range(grph.w)]
+        )
+
+    # add to original grid
+    grph.grid = (
+        [[z[0]] + z[1] for i, z in enumerate(zip(yaxis, grph.grid))]
+        + xaxis
+    )
+    return grph
+
+
+def add_frame(grph):
+    grphlen = grph.w
+    for i, item in enumerate(grph.grid):
+        grph.grid[i] = [chrs.ud] + item + [chrs.ud]
+    li = [[chrs.ur] + grphlen * [chrs.lr] + [chrs.rd]]
+    lf = [[chrs.dr] + grphlen * [chrs.lr] + [chrs.ru]]
+    grph.grid = li + grph.grid + lf
+    return grph
