@@ -1,6 +1,7 @@
 # canvas module
 
 import math
+from copy import deepcopy
 
 from charcad.draw.graphic_object import GraphicObjectArray
 from charcad.draw.point import Point
@@ -92,15 +93,14 @@ class Graph:
         [print(item) for item in [row for row in self.grid]]
 
     def print(self, frame=False):
-        new_grid = self.grid.copy()
-        grph = Graph(0, 0)
+        grph = deepcopy(self)
         if frame:
-            li = [[chrs.ur] + len(new_grid[0]) * [chrs.lr] + [chrs.rd]]
-            lf = [[chrs.dr] + len(new_grid[0]) * [chrs.lr] + [chrs.ru]]
-            for i, item in enumerate(new_grid):
-                new_grid[i] = [chrs.ud] + item + [chrs.ud]
-            new_grid = li + new_grid + lf
-        grph.grid = new_grid 
+            grphlen = len(grph.grid[0])
+            for i, item in enumerate(grph.grid):
+                grph.grid[i] = [chrs.ud] + item + [chrs.ud]
+            li = [[chrs.ur] + grphlen * [chrs.lr] + [chrs.rd]]
+            lf = [[chrs.dr] + grphlen * [chrs.lr] + [chrs.ru]]
+            grph.grid = li + grph.grid + lf
         print(grph)
 
     def reset(self):
