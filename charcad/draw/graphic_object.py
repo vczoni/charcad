@@ -11,7 +11,9 @@ class GraphicObjectArray:
         self._objects = dict()
 
     def __getitem__(self, idx):
-        return self.values[idx]
+        k = self.keys
+        k.sort()
+        return self._objects[k[idx]]
 
     def __len__(self):
         return len(self._objects)
@@ -30,7 +32,7 @@ class GraphicObjectArray:
         return [val for val in self._objects.values()]
 
     def add(self, obj):
-        name = 'object_{}'.format(self.__len__())
+        name = 'object_{:04d}'.format(self.__len__())
         self._objects.update({name: obj})
 
     def remove(self, key):

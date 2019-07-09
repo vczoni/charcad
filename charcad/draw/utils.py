@@ -3,6 +3,24 @@ import math
 
 # properties
 
+class DrawingChars:
+    def __init__(self):
+        self.ud = '│'
+        self.ur = '┌'
+        self.dr = '└'
+        self.ru = '┘'
+        self.rd = '┐'
+        self.lr = '─'
+        self.i = '┼'
+
+        self.dru = '╱'
+        self.drd = '╲'
+        self.dlr = '_'
+        self.di = '╳'
+
+
+chrs = DrawingChars()
+
 
 # fuctions
 
@@ -30,3 +48,6 @@ def force_list(var):
 
 def isnumeric(var):
     return isinstance(var, (float, int))
+
+
+# decorators

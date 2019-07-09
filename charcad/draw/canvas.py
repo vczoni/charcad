@@ -6,7 +6,7 @@ from charcad.draw.graphic_object import GraphicObjectArray
 from charcad.draw.point import Point
 from charcad.draw.route import Route
 
-from charcad.draw.utils import force_list
+from charcad.draw.utils import force_list, chrs
 
 
 class Canvas:
@@ -30,31 +30,16 @@ class Canvas:
     def draw_in_graph(self):
         self.graph.add_objects(self.objects)
 
-    def drawroute(self, *p, marker='.', origins=True, origin_marker='x',
-                  seek_angle=False):
+    def drawroute(self, *p, marker='.', origin_marker='x'):
         p = list(p)
         for i, item in enumerate(p):
             if isinstance(item, (tuple, list)):
                 p[i] = Point(*item)
+            elif isinstance(item, Point):
+                p[i] = item
         route = Route()
-        route.create_route(*p, marker=marker)
-        if origins:
-            vals = route.objects.values
-            keys = route.objects.keys
-            vals[0].marker = origin_marker
-            vals[-1].marker = origin_marker
-            route.objects.update(dict(zip(keys, vals)))
+        route.create_route(*p, marker=marker, origin_marker=origin_marker)
         self.add_object(route)
-
-    def drawpoint(self, *p, marker='.'):
-        if isinstance(p[0], int):
-            self.graph.add_point(Point(*p, marker=marker))
-        elif isinstance(p[0], (list, tuple)):
-            for item in p:
-                self.drawpoint(*item, marker=marker)
-        elif isinstance(p[0], Point):
-            for item in p:
-                self.drawpoint(*item, item.marker)
 
     # aux methods
 
@@ -66,9 +51,9 @@ class Canvas:
 
     # inspecting functions (A-Z)
 
-    def show(self, axes=False, frame=True):
+    def show(self, axes=False, frame=False):
         self.draw_in_graph()
-        self.graph.print()
+        self.graph.print(frame=frame)
 
 
 class Graph:
@@ -106,28 +91,18 @@ class Graph:
     def inspect(self):
         [print(item) for item in [row for row in self.grid]]
 
-    def print(self):
-        print(self.__repr__())
+    def print(self, frame=False):
+        new_grid = self.grid.copy()
+        grph = Graph(0, 0)
+        if frame:
+            li = [[chrs.ur] + len(new_grid[0]) * [chrs.lr] + [chrs.rd]]
+            lf = [[chrs.dr] + len(new_grid[0]) * [chrs.lr] + [chrs.ru]]
+            for i, item in enumerate(new_grid):
+                new_grid[i] = [chrs.ud] + item + [chrs.ud]
+            new_grid = li + new_grid + lf
+        grph.grid = new_grid 
+        print(grph)
 
     def reset(self):
         for _ in range(self.h):
             self.grid.append([' '] * self.w)
-
-
-class DrawingChars:
-    def __init__(self):
-        self.ud = '│'
-        self.ur = '┌'
-        self.dr = '└'
-        self.ru = '┘'
-        self.rd = '┐'
-        self.lr = '─'
-        self.i = '┼'
-
-        self.dru = '╱'
-        self.drd = '╲'
-        self.dlr = '_'
-        self.di = '╳'
-
-
-chrs = DrawingChars()
