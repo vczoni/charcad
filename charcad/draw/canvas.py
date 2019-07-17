@@ -12,6 +12,7 @@ from charcad.draw.utils import force_list, chrs
 
 class Canvas:
     def __init__(self, w=None, h=None):
+        self.draw = Draw(self)
         if not w is None and not h is None:
             self.new(w, h)
 
@@ -31,7 +32,24 @@ class Canvas:
     def draw_in_graph(self):
         self.graph.add_objects(self.objects)
 
-    def drawroute(self, *p, marker='.', origin_marker=None):
+    # aux methods
+
+    def add_object(self, obj):
+        self.objects.add(obj)
+
+    def show(self, axes=False, frame=False):
+        self.draw_in_graph()
+        self.graph.print(axes=axes, frame=frame)
+
+
+class Draw:
+    def __init__(self, canvas):
+        self._canvas = canvas
+    
+    def point(self, p):
+        self._canvas.add_object(p)
+
+    def route(self, *p, marker='.', origin_marker=None):
         if origin_marker is None:
             origin_marker = marker
         p = list(p)
@@ -42,21 +60,7 @@ class Canvas:
                 p[i] = item
         route = Route()
         route.create_route(*p, marker=marker, origin_marker=origin_marker)
-        self.add_object(route)
-
-    # aux methods
-
-    def add_object(self, obj):
-        self.objects.add(obj)
-
-    def add_point(self, p):
-        self.add_object(p)
-
-    # inspecting functions (A-Z)
-
-    def show(self, axes=False, frame=False):
-        self.draw_in_graph()
-        self.graph.print(axes=axes, frame=frame)
+        self._canvas.add_object(route)
 
 
 class Graph:
@@ -67,12 +71,7 @@ class Graph:
         self.reset()
 
     def __repr__(self):
-        printstr = str()
-        for row in self.grid:
-            for item in row:
-                printstr += item
-            printstr += '\n'
-        return printstr
+        return ''.join([''.join(row)+'\n' for row in self.grid])
 
     def add_objects(self, graphicArray):
         for obj in graphicArray:
