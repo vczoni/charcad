@@ -71,7 +71,7 @@ class Graph:
         self.reset()
 
     def __repr__(self):
-        return ''.join([''.join(row)+'\n' for row in self.grid])
+        return '\n'.join([''.join(row) for row in self.grid])
 
     def add_objects(self, graphicArray):
         for obj in graphicArray:
