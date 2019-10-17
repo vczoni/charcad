@@ -46,8 +46,4 @@ def force_list(var):
     return var
 
 
-def isnumeric(var):
-    return isinstance(var, (float, int))
-
-
 # decorators

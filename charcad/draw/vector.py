@@ -1,20 +1,21 @@
 import math
+from numbers import Number as numeric
 
-from charcad.draw.point import Point
-from charcad.draw.utils import calc_angle, isnumeric
+from charcad.draw.coordinates import Coordinates
+from charcad.draw.utils import calc_angle
 
 
 class Vector:
-    def __init__(self, *p, origin=Point(0, 0)):
+    def __init__(self, *p, origin=Coordinates(0, 0)):
         if isinstance(p[0], tuple):
-            p = Point(*p[0])
-        elif isinstance(p[0], Point):
+            p = Coordinates(*p[0])
+        elif isinstance(p[0], Coordinates):
             p = p[0]
-        elif isnumeric(p[0]):
-            p = Point(*p)
+        elif isinstance(p[0], numeric):
+            p = Coordinates(*p)
 
         if isinstance(origin, tuple):
-            origin = Point(*origin)
+            origin = Coordinates(*origin)
 
         self.p = p
         self.origin = origin
