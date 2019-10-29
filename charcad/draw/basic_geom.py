@@ -11,9 +11,7 @@ class Point(GraphicObject):
         super().__init__(x, y)
         if not isinstance(marker, str):
             raise TypeError("marker should be str.")
-        # ensuring that the marker's len in always 1
-        self.marker = marker[0]
-        self.graph = Graph(self.marker)
+        self.set_marker(marker)
 
     def __add__(self, other):
         if isinstance(other, Point):
@@ -65,3 +63,8 @@ class Point(GraphicObject):
 
     def __round__(self, n=0):
         return Point(round(self.coord, n), self.marker)
+    
+    def set_marker(self, marker):
+        # ensuring that the marker's len in always 1
+        self.marker = marker[0]
+        self.graph = Graph(self.marker)
