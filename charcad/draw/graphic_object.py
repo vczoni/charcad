@@ -3,20 +3,21 @@ import numpy as np
 from copy import deepcopy
 
 from charcad.draw.coordinates import Coordinates
-from charcad.draw.utils import force_list, chrs
+from charcad.draw.utils import chrs
 
 
 _empty_grid = np.array([[' ']])
 
 
 class GraphicObject:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, transparent=True):
         if isinstance(x, Coordinates):
             coord = x
         else:
             coord = Coordinates(x, y)
         self.coord = coord
         self.graph = None
+        self.set_transparency(transparent)
 
     @property
     def x(self):
@@ -26,10 +27,14 @@ class GraphicObject:
     def y(self):
         return self.coord.y
 
+    def set_transparency(self, transparency):
+        self.transparency = transparency
+
 
 class GraphicObjectArray:
     def __init__(self):
         self._objects = dict()
+        self._counter = 0
 
     def __getitem__(self, key):
         if not isinstance(key, str):
@@ -43,23 +48,40 @@ class GraphicObjectArray:
 
     def __repr__(self):
         z = zip(self.keys, self.values)
-        return 'Graphic Object Array[\n    %s\n]' % \
-            ',\n    '.join([(k + ': %s') % v for k, v in z])
+        p = int(math.log10(len(self)) + 1)
+        return 'Graphic Object Array[\n  %s\n]' % \
+            ',\n  '.join([
+                (str(i).zfill(p) + '\t' + k + ': %s') % v
+                for i, (k, v) in enumerate(z)
+            ])
 
     @property
     def keys(self):
-        return list(self._objects)
+        return list(self._objects.keys())
 
     @property
     def values(self):
         return list(self._objects.values())
 
     def add(self, obj):
-        name = 'object_{:04d}'.format(self.__len__())
+        name = 'object_{:04d}'.format(self._counter)
         self._objects.update({name: obj})
+        self._counter += 1
 
     def remove(self, key):
-        del self._objects[key]
+        if isinstance(key, (list, tuple)):
+            key = list(key)
+            key.sort(reverse=True)
+            [self.remove(k) for k in key]
+        else:
+            if isinstance(key, str):
+                pass
+            elif isinstance(key, int):
+                key = self.keys[key]
+            else:
+                raise TypeError("key must be integer, string or iterable.")
+            del self._objects[key]
+            self._counter -= 1
 
     def update(self, item):
         self._objects.update(item)
@@ -107,7 +129,7 @@ class Graph:
     def shape(self):
         return (self.h, self.w)
 
-    def add_objects(self, graphicArray, transparency=True):
+    def add_objects(self, graphicArray):
         for obj in graphicArray:
             if isinstance(obj, GraphicObjectArray):
                 self.add_objects(obj)
@@ -117,7 +139,7 @@ class Graph:
                 raise TypeError(
                     "obj must be GraphicObject or GraphicObjectArray.")
 
-    def add_graph(self, obj, x=0, y=0, transparency=True):
+    def add_graph(self, obj, x=0, y=0):
         if isinstance(x, Coordinates):
             coord_other = x
         else:
@@ -129,7 +151,8 @@ class Graph:
         yi = self.flipud(coord.y - 1 + obj.graph.h)
         x_slice = slice(xi, xf)
         y_slice = slice(yi, yf)
-        if transparency:
+        transparent = obj.transparency
+        if transparent:
             new_subgraph = self[y_slice, x_slice].no_background_draw(obj.graph)
         else:
             new_subgraph = obj.graph
@@ -167,8 +190,8 @@ class Graph:
 
 def add_axes(grph, w, h):
     # axis order of gratness
-    yg = math.floor(math.log10(grph.h)) + 1
-    xg = math.floor(math.log10(grph.w)) + 1
+    yg = int(math.log10(grph.h) + 1)
+    xg = int(math.log10(grph.w) + 1)
     # check offset (caused by frame)
     offset_h = int((grph.h - h) / 2)
     offset_w = int((grph.w - w) / 2)

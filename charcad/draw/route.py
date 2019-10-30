@@ -9,8 +9,8 @@ from charcad.draw.utils import calc_angle, calc_distance
 
 class Route(GraphicObject):
 
-    def __init__(self):
-        super(Route, self).__init__()
+    def __init__(self, transparent=True):
+        super(Route, self).__init__(transparent=transparent)
         self.objects = GraphicObjectArray()
 
     def __repr__(self):

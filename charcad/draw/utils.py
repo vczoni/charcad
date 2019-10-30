@@ -11,12 +11,12 @@ class DrawingChars:
         self.ru = '┘'
         self.rd = '┐'
         self.lr = '─'
-        self.i = '┼'
 
+        self.ilr = '_'
+        self.oin = '┼'
+        self.din = '╳'
         self.dru = '╱'
         self.drd = '╲'
-        self.dlr = '_'
-        self.di = '╳'
 
 
 chrs = DrawingChars()
