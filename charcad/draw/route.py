@@ -1,8 +1,8 @@
 # route
 
 from charcad.draw.coordinates import Coordinates
-from charcad.draw.graphic_object import GraphicObject, GraphicObjectArray, Graph
-from charcad.draw.basic_geom import Point
+from charcad.draw.graph import GraphicObject, GraphicObjectArray, Graph
+from charcad.draw.point import Point
 from charcad.draw.vector import Vector
 from charcad.draw.utils import calc_angle, calc_distance
 
@@ -15,6 +15,9 @@ class Route(GraphicObject):
 
     def __repr__(self):
         return 'Route at <%s>' % id(self)
+    
+    def __len__(self):
+        return len(self.objects)
 
     @property
     def origin(self):
@@ -35,10 +38,8 @@ class Route(GraphicObject):
                 - min([obj.coord.x for obj in self.objects])
                 + 1)
 
-    def add_point(self, p, update=False):
+    def add_point(self, p):
         self.objects.add(p)
-        if update:
-            self.update_graph()
 
     def create_route(self, *points, marker='.', origin_marker='.'):
         for point, next_point in zip(points[0:-1], points[1:]):

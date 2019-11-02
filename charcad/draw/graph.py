@@ -11,11 +11,7 @@ _empty_grid = np.array([[' ']])
 
 class GraphicObject:
     def __init__(self, x=0, y=0, transparent=True):
-        if isinstance(x, Coordinates):
-            coord = x
-        else:
-            coord = Coordinates(x, y)
-        self.coord = coord
+        self.set_coordinates(x, y)
         self.graph = None
         self.set_transparency(transparent)
 
@@ -27,8 +23,17 @@ class GraphicObject:
     def y(self):
         return self.coord.y
 
-    def set_transparency(self, transparency):
-        self.transparency = transparency
+    def set_coordinates(self, x, y=0):
+        if isinstance(x, Coordinates):
+            coord = x
+        elif isinstance(x, (list, tuple)):
+            coord = Coordinates(*x)
+        else:
+            coord = Coordinates(x, y)
+        self.coord = coord
+
+    def set_transparency(self, transparent):
+        self.transparent = transparent
 
 
 class GraphicObjectArray:
@@ -37,11 +42,16 @@ class GraphicObjectArray:
         self._counter = 0
 
     def __getitem__(self, key):
-        if not isinstance(key, str):
-            k = self.keys
-            k.sort()
-            key = k[key]
-        return self._objects[key]
+        if isinstance(key, str):
+            self._objects[key]
+        else:
+            key_aux = self.keys
+            key_aux.sort()
+            if isinstance(key, slice):
+                item = [self._objects[k] for k in key_aux[key]]
+            else:
+                item = self._objects[key_aux[key]]
+        return item
 
     def __len__(self):
         return len(self._objects)
@@ -65,8 +75,12 @@ class GraphicObjectArray:
 
     def add(self, obj):
         name = 'object_{:04d}'.format(self._counter)
+        self._check_duplicates(obj)
         self._objects.update({name: obj})
         self._counter += 1
+
+    def _check_duplicates(self, obj):
+        [delete_object(o) for o in self if obj == o]
 
     def remove(self, key):
         if isinstance(key, (list, tuple)):
@@ -151,7 +165,7 @@ class Graph:
         yi = self.flipud(coord.y - 1 + obj.graph.h)
         x_slice = slice(xi, xf)
         y_slice = slice(yi, yf)
-        transparent = obj.transparency
+        transparent = obj.transparent
         if transparent:
             new_subgraph = self[y_slice, x_slice].no_background_draw(obj.graph)
         else:
@@ -224,3 +238,7 @@ def add_frame(grph):
     grph.grid = np.c_[[chrs.ud] * grph.h, grph.grid, [chrs.ud] * grph.h]
     grph.grid = np.r_[li, grph.grid, lf]
     return grph
+
+
+def delete_object(obj):
+    del obj

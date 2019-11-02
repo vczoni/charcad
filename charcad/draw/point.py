@@ -1,6 +1,6 @@
 from numbers import Number as numeric
 from charcad.draw.coordinates import Coordinates
-from charcad.draw.graphic_object import GraphicObject, Graph
+from charcad.draw.graph import GraphicObject, Graph
 
 
 class Point(GraphicObject):
@@ -16,7 +16,7 @@ class Point(GraphicObject):
     def __add__(self, other):
         if isinstance(other, Point):
             new_point = Point(self.coord + other.coord, self.marker)
-        elif isinstance(other, Coordinates):
+        elif isinstance(other, (Coordinates, tuple)):
             new_point = Point(self.coord + other, self.marker)
         else:
             raise TypeError("'other' must be a Point or a Coordinates object.")
@@ -25,7 +25,7 @@ class Point(GraphicObject):
     def __sub__(self, other):
         if isinstance(other, Point):
             new_point = Point(self.coord - other.coord, self.marker)
-        elif isinstance(other, Coordinates):
+        elif isinstance(other, (Coordinates, tuple)):
             new_point = Point(self.coord - other, self.marker)
         else:
             raise TypeError("'other' must be a Point or a Coordinates object.")
@@ -49,7 +49,7 @@ class Point(GraphicObject):
         elif isinstance(other, Coordinates):
             eq = self.coord == other
         else:
-            raise TypeError("'other' must be a Point or a Coordinates object.")
+            eq = False
         return eq
 
     def __getitem__(self, item):
@@ -63,7 +63,7 @@ class Point(GraphicObject):
 
     def __round__(self, n=0):
         return Point(round(self.coord, n), self.marker)
-    
+
     def set_marker(self, marker):
         # ensuring that the marker's len in always 1
         self.marker = marker[0]

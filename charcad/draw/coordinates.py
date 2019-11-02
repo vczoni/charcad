@@ -3,14 +3,14 @@ from numbers import Number as numeric
 
 class Coordinates:
     def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
     def __add__(self, other):
-        return Coordinates(self.x + other.x, self.y + other.y)
+        return Coordinates(self.x + other[0], self.y + other[1])
 
     def __sub__(self, other):
-        return Coordinates(self.x - other.x, self.y - other.y)
+        return Coordinates(self.x - other[0], self.y - other[1])
 
     def __mul__(self, other):
         if isinstance(other, numeric):
