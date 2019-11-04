@@ -6,7 +6,7 @@ from charcad.draw.coordinates import Coordinates
 from charcad.draw.utils import chrs
 
 
-_empty_grid = np.array([[' ']])
+_EMPTY_GRID = np.array([[' ']])
 
 
 class GraphicObject:
@@ -34,6 +34,12 @@ class GraphicObject:
 
     def set_transparency(self, transparent):
         self.transparent = transparent
+    
+    def set_x(self, x):
+        self.coord.x = x
+    
+    def set_y(self, y):
+        self.coord.y = y
 
 
 class GraphicObjectArray:
@@ -173,7 +179,8 @@ class Graph:
         self[y_slice, x_slice] = new_subgraph
 
     def copy(self):
-        return Graph(self.grid.copy())
+        grid = self.grid.copy()
+        return Graph(grid=grid)
 
     def flipud(self, yi):
         return self.h - yi - 1
@@ -182,7 +189,7 @@ class Graph:
         [print(item) for item in [row for row in self.grid]]
 
     def isempty(self):
-        return self.grid == _empty_grid
+        return self.grid == _EMPTY_GRID
 
     def no_background_draw(self, other, rng=None):
         gph_out = self.copy()

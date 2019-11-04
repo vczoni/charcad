@@ -2,8 +2,8 @@
 
 from charcad.draw.graph import GraphicObject, GraphicObjectArray, Graph
 from charcad.draw.point import Point
-from charcad.draw.line import Horizontal, Vertical
-from charcad.draw.route import Route
+from charcad.draw.lines import Route, Horizontal, Vertical
+from charcad.draw.text import Text
 
 
 class Canvas(GraphicObject):
@@ -14,15 +14,6 @@ class Canvas(GraphicObject):
         self.h = h + 1
         self.reset()
 
-    def reset(self):
-        self.objects = GraphicObjectArray()
-        self.reset_graph()
-
-    def reset_graph(self):
-        self.graph = Graph(w=self.w, h=self.h)
-
-    # aux methods (A-Z)
-
     def add_object(self, obj, coord=None):
         if not coord is None:
             obj.set_coordinates(coord)
@@ -30,6 +21,13 @@ class Canvas(GraphicObject):
 
     def remove_object(self, key):
         self.objects.remove(key)
+
+    def reset(self):
+        self.objects = GraphicObjectArray()
+        self.reset_graph()
+
+    def reset_graph(self):
+        self.graph = Graph(w=self.w, h=self.h)
 
     def show(self, axes=False, frame=False):
         self.reset_graph()
@@ -43,44 +41,54 @@ class Canvas(GraphicObject):
 class Draw:
     def __init__(self, outer):
         self._canvas = outer
-        self.line = Line(outer)
+        self.line = self._Line(outer)
 
-    def point(self, p):
+    def point(self, p, formatter=None):
         if isinstance(p, (list, tuple)):
             p = Point(*p)
+            p.set_formatter(formatter)
         self._canvas.add_object(p)
 
-    def route(self, *p, marker='.', origin_marker=None, transparent=True):
-        if origin_marker is None:
-            origin_marker = marker
-        p = list(p)
-        for i, item in enumerate(p):
-            if isinstance(item, (tuple, list)):
-                p[i] = Point(*item)
-            elif isinstance(item, Point):
-                p[i] = item
-        route = Route(transparent=transparent)
-        route.create_route(*p, marker=marker, origin_marker=origin_marker)
-        self._canvas.add_object(route)
+    def text(self, text, x=0, y=0, transparent=True, formatter=None):
+        txt = Text(x, y, text=text, transparent=transparent,
+                   formatter=formatter)
+        self._canvas.add_object(txt)
 
+    class _Line:
+        def __init__(self, outer):
+            self._canvas = outer
 
-class Line:
-    def __init__(self, outer):
-        self._canvas = outer
+        def __call__(self, direction, *a, **kw):
+            if direction.lower() in ['h', 'horizontal']:
+                self.horizontal(*a, **kw)
+            elif direction.lower() in ['v', 'vertical']:
+                self.vertical(*a, **kw)
+            else:
+                raise Exception(
+                    "'%s' is an invalid direction." % direction)
 
-    def __call__(self, direction, *a, **kw):
-        if direction.lower() in ['h', 'horizontal']:
-            self.horizontal(*a, **kw)
-        elif direction.lower() in ['v', 'vertical']:
-            self.vertical(*a, **kw)
-        else:
-            raise Exception(
-                "'%s' is an invalid direction." % direction)
+        def horizontal(self, x, y, length, marker=None, formatter=None):
+            line = Horizontal(x, y, length, marker=marker, formatter=formatter)
+            line.formatter = formatter
+            self._canvas.add_object(line)
 
-    def horizontal(self, x, y, length, marker=None):
-        line = Horizontal(x, y, length, marker)
-        self._canvas.add_object(line)
+        def vertical(self, x, y, length, marker=None, formatter=None):
+            line = Vertical(x, y, length, marker=marker, formatter=formatter)
+            line.formatter = formatter
+            self._canvas.add_object(line)
 
-    def vertical(self, x, y, length, marker=None):
-        line = Vertical(x, y, length, marker)
-        self._canvas.add_object(line)
+        def route(self, *p, marker='.', origin_marker=None,
+                  formatter=None, origin_formatter=None, transparent=True):
+            if origin_marker is None:
+                origin_marker = marker
+            p = list(p)
+            for i, item in enumerate(p):
+                if isinstance(item, (tuple, list)):
+                    p[i] = Point(*item)
+                elif isinstance(item, Point):
+                    p[i] = item
+            route = Route(transparent=transparent)
+            route.create_route(*p, marker=marker, origin_marker=origin_marker,
+                               formatter=formatter,
+                               origin_formatter=origin_formatter)
+            self._canvas.add_object(route)
