@@ -48,79 +48,77 @@ def force_list(var):
 
 # text formatters
 
+def assign_aspect(value, aspect):
+    def deco(formatter):
+        def wrapper():
+            if aspect == 'style':
+                formatter.style = value
+            if aspect == 'color':
+                formatter.color = value
+            if aspect == 'bgcolor':
+                formatter.background_color = value
+        return wrapper
+    return deco
+
+
 ESCAPE = ['\033[', '\033[0m']
 STYLES = {
-    'none': '0',
-    'bold': '1',
-    'negative': '2',
-    'negative2': '5',
-    'underline': '4',
+    'none':         assign_aspect('0', 'style'),
+    'bold':         assign_aspect('1', 'style'),
+    'negative':     assign_aspect('2', 'style'),
+    'negative2':    assign_aspect('5', 'style'),
+    'underline':    assign_aspect('4', 'style'),
 }
 COLORS = {
-    'black': '30',
-    'red': '31',
-    'green': '32',
-    'yellow': '33',
-    'blue': '34',
-    'purple': '35',
-    'cyan': '36',
-    'white': '37',
-    'none': '38'
+    'black':    assign_aspect('30', 'color'),
+    'red':      assign_aspect('31', 'color'),
+    'green':    assign_aspect('32', 'color'),
+    'yellow':   assign_aspect('33', 'color'),
+    'blue':     assign_aspect('34', 'color'),
+    'purple':   assign_aspect('35', 'color'),
+    'cyan':     assign_aspect('36', 'color'),
+    'white':    assign_aspect('37', 'color'),
+    'none':     assign_aspect('38', 'color'),
 }
 BACKGROUND_COLORS = {
-    'black': '40',
-    'red': '41',
-    'green': '42',
-    'yellow': '43',
-    'blue': '44',
-    'purple': '45',
-    'cyan': '46',
-    'white': '47',
-    'none': '48',
+    'black':    assign_aspect('40m', 'bgcolor'),
+    'red':      assign_aspect('41m', 'bgcolor'),
+    'green':    assign_aspect('42m', 'bgcolor'),
+    'yellow':   assign_aspect('43m', 'bgcolor'),
+    'blue':     assign_aspect('44m', 'bgcolor'),
+    'purple':   assign_aspect('45m', 'bgcolor'),
+    'cyan':     assign_aspect('46m', 'bgcolor'),
+    'white':    assign_aspect('47m', 'bgcolor'),
+    'none':     assign_aspect('48m', 'bgcolor'),
 }
 
 
 class Formatter:
-    class _Styles:
-        def __init__(self):
-            self.__dict__ = STYLES
-
-    class _Colors:
-        def __init__(self):
-            self.__dict__ = COLORS
-
-    class _BackgroundColors:
-        def __init__(self):
-            self.__dict__ = BACKGROUND_COLORS
+    class _AspectSetter:
+        def __init__(self, outer, aspect_dict):
+            aspects = aspect_dict.copy()
+            [aspects.update({key: val(outer)}) for key, val in aspects.items()]
+            self.__dict__ = aspects
 
     def __init__(self):
+        # init aspacts
+        self.style = None
+        self.color = None
+        self.background_color = None
         # formats
-        self.styles = self._Styles()
-        self.colors = self._Colors()
-        self.background_colors = self._BackgroundColors()
+        self.set_style = self._AspectSetter(self, STYLES)
+        self.set_color = self._AspectSetter(self, COLORS)
+        self.set_background_color = self._AspectSetter(self, BACKGROUND_COLORS)
         # config
-        self.style = self.styles.none
-        self.color = self.colors.none
-        self.background_color = self.background_colors.none
-    
+        self.set_style.none()
+        self.set_color.none()
+        self.set_background_color.none()
+
     def __repr__(self):
         return self.format('Hello! I am Formatter ' + str(id(self)))
 
-    def set_background_color(self, background_color):
-        self.background_color = self.background_colors\
-            .__dict__[background_color.lower()]
-
-    def set_color(self, color):
-        self.color = self.colors.__dict__[color.lower()]
-
-    def set_style(self, style):
-        self.style = self.styles.__dict__[style.lower()]
-
     def format(self, text):
-        style = self.style
-        color = self.color
-        bgcolor = self.background_color + 'm'
-        fmt = [style, color, bgcolor]
+        fmt = [self.style, self.color, self.background_color]
         if all(fmt):
             text_out = (';'.join(fmt) + text).join(ESCAPE)
         else:

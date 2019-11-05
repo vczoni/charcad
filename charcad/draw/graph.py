@@ -3,7 +3,7 @@ import numpy as np
 from copy import deepcopy
 
 from charcad.draw.coordinates import Coordinates
-from charcad.draw.utils import chrs
+from charcad.draw.utils import DrawingChars
 
 
 _EMPTY_GRID = np.array([[' ']])
@@ -34,12 +34,16 @@ class GraphicObject:
 
     def set_transparency(self, transparent):
         self.transparent = transparent
-    
+
     def set_x(self, x):
         self.coord.x = x
-    
+
     def set_y(self, y):
         self.coord.y = y
+
+    def show(self, axes=False, frame=False, frame_formatter=None):
+        self.graph.print(axes=axes, frame=frame,
+                         frame_formatter=frame_formatter)
 
 
 class GraphicObjectArray:
@@ -65,11 +69,9 @@ class GraphicObjectArray:
     def __repr__(self):
         z = zip(self.keys, self.values)
         p = int(math.log10(len(self)) + 1)
-        return 'Graphic Object Array[\n  %s\n]' % \
-            ',\n  '.join([
-                (str(i).zfill(p) + '\t' + k + ': %s') % v
-                for i, (k, v) in enumerate(z)
-            ])
+        return 'Graphic Object Array[\n  %s\n]' % ',\n  '\
+            .join([(str(i).zfill(p) + '\t' + k + ': %s') % v
+                   for i, (k, v) in enumerate(z)])
 
     @property
     def keys(self):
@@ -200,10 +202,10 @@ class Graph:
                     gph_out[i, j] = iother[0, 0]
         return gph_out
 
-    def print(self, frame=False, axes=False):
+    def print(self, frame=False, axes=False, frame_formatter=None):
         grph = deepcopy(self)
         if frame:
-            grph = add_frame(grph)
+            grph = add_frame(grph, frame_formatter)
         if axes:
             grph = add_axes(grph, self.w, self.h)
         print(grph)
@@ -239,7 +241,11 @@ def add_axes(grph, w, h):
     return grph
 
 
-def add_frame(grph):
+def add_frame(grph, formatter=None):
+    chrs = DrawingChars()
+    if formatter is not None:
+        [chrs.__dict__.update({k: formatter.format(ch)})
+         for k, ch in chrs.__dict__.items()]
     li = [[chrs.ur] + grph.w * [chrs.lr] + [chrs.rd]]
     lf = [[chrs.dr] + grph.w * [chrs.lr] + [chrs.ru]]
     grph.grid = np.c_[[chrs.ud] * grph.h, grph.grid, [chrs.ud] * grph.h]

@@ -10,8 +10,8 @@ class Canvas(GraphicObject):
     def __init__(self, w, h):
         super(Canvas, self).__init__()
         self.draw = Draw(self)
-        self.w = w + 1
-        self.h = h + 1
+        self.w = w
+        self.h = h
         self.reset()
 
     def add_object(self, obj, coord=None):
@@ -29,10 +29,11 @@ class Canvas(GraphicObject):
     def reset_graph(self):
         self.graph = Graph(w=self.w, h=self.h)
 
-    def show(self, axes=False, frame=False):
+    def show(self, axes=False, frame=False, frame_formatter=None):
         self.reset_graph()
         self.graph.add_objects(self.objects)
-        self.graph.print(axes=axes, frame=frame)
+        self.graph.print(axes=axes, frame=frame,
+                         frame_formatter=frame_formatter)
 
     def undo(self):
         self.objects.remove(-1)
