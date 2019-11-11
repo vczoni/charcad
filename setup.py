@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name=' '.join(['charcad', VERSION[1:]]),
+    name=' '.join(['charcad', VERSION]),
     packages=['charcad'],
     version=VERSION,
     license='MIT',
