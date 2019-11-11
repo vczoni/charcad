@@ -50,9 +50,10 @@ class Draw:
             p.set_formatter(formatter)
         self._canvas.add_object(p)
 
-    def text(self, text, x=0, y=0, transparent=True, formatter=None):
+    def text(self, text, x=0, y=0, transparent=True, formatter=None,
+             alignment='center'):
         txt = Text(x, y, text=text, transparent=transparent,
-                   formatter=formatter)
+                   formatter=formatter, alignment=alignment)
         self._canvas.add_object(txt)
 
     class _Line:
