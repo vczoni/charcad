@@ -1,3 +1,5 @@
+dist
+charcad.egg-info
 charcad/__pycache__
 charcad/draw/__pycache__
 charcad/tests
