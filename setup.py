@@ -1,6 +1,6 @@
 from setuptools import setup
 
-with open('charcad.version.py') as f:
+with open('charcad/version.py') as f:
     exec(f.read())
 
 VERSION = __version__
