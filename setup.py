@@ -3,6 +3,9 @@ from charcad.version import __version__
 
 VERSION = __version__
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='charcad',
     packages=['charcad'],
@@ -14,9 +17,7 @@ setup(
     url='https://github.com/vczoni/charcad',
     download_url='https://github.com/user/reponame/archive/v_01.tar.gz',
     keywords=['CHARACTER', 'DRAWING', 'BASIC'],
-    install_requires=[
-        'numpy',
-    ],
+    install_requires=requirements,
     python_requires='>=3',
     classifiers=[
         'Development Status :: 3 - Alpha',
