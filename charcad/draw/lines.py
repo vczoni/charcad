@@ -96,8 +96,7 @@ class Route(Lines):
     def origin(self):
         x = min([obj.coord.x for obj in self.objects])
         y = min([obj.coord.y for obj in self.objects])
-        self.coord = Coordinates(x, y)
-        return self.coord
+        return Coordinates(x, y)
 
     @property
     def h(self):
@@ -125,7 +124,8 @@ class Route(Lines):
         self.objects[0].set_formatter(origin_formatter)
         self.objects[-1].set_marker(origin_marker)
         self.objects[-1].set_formatter(origin_formatter)
-        self.update_graph()
+        self.coord = self.origin
+        self.update()
 
     def connect(self, p1, p2):
         current_point = p1
@@ -141,7 +141,7 @@ class Route(Lines):
             self.add_point(current_point)
             arrived = current_point == target_point
 
-    def update_graph(self):
+    def update(self):
         self.graph = Graph(w=self.w, h=self.h)
         origin = self.origin
         for obj in self.objects:

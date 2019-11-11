@@ -33,8 +33,8 @@ class Text(GraphicObject):
             alignment = self.alignment
         else:
             self.alignment = alignment
-        w = self.graph.w
-        h = self.graph.h
+        w = self.w
+        h = self.h
         objects_list = [
             [obj for obj in self.objects if obj.y == i]
             for i in range(h)]
@@ -44,14 +44,17 @@ class Text(GraphicObject):
             offset = calc_offset(w, sz) - x0
             for obj in lst:
                 obj.coord.x += offset
-        self.update_graph(w, h)
+        self.update_graph()
 
-    def format_text(self):
+    def format_text(self, formatter=None):
+        if formatter is not None:
+            self.formatter = formatter
         for obj in self.objects:
             obj.set_formatter(self.formatter)
+        self.update_graph()
 
-    def update_graph(self, w=1, h=1):
-        self.graph = Graph(w=w, h=h)
+    def update_graph(self):
+        self.graph = Graph(w=self.w, h=self.h)
         for obj in self.objects:
             self.graph.add_graph(obj)
 
@@ -73,6 +76,7 @@ class Text(GraphicObject):
                 self.add_point(p)
         else:
             raise TypeError("'text' must be s string or a list of strings")
+        self.w = w
+        self.h = h
         self.format_text()
-        self.update_graph(w, h)
         self.align()

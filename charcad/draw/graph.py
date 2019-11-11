@@ -23,7 +23,7 @@ class GraphicObject:
     def y(self):
         return self.coord.y
 
-    def set_coordinates(self, x, y=0):
+    def set_coordinates(self, x, y=None):
         if isinstance(x, Coordinates):
             coord = x
         elif isinstance(x, (list, tuple)):
@@ -103,7 +103,6 @@ class GraphicObjectArray:
             else:
                 raise TypeError("key must be integer, string or iterable.")
             del self._objects[key]
-            self._counter -= 1
 
     def update(self, item):
         self._objects.update(item)

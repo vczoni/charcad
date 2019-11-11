@@ -14,9 +14,11 @@ class Canvas(GraphicObject):
         self.h = h
         self.reset()
 
-    def add_object(self, obj, coord=None):
+    def add_object(self, obj, x=None, y=None, coord=None):
         if not coord is None:
             obj.set_coordinates(coord)
+        elif all([x, y]):
+            obj.set_coordinates(x, y)
         self.objects.add(obj)
 
     def remove_object(self, key):
@@ -30,13 +32,21 @@ class Canvas(GraphicObject):
         self.graph = Graph(w=self.w, h=self.h)
 
     def show(self, axes=False, frame=False, frame_formatter=None):
-        self.reset_graph()
-        self.graph.add_objects(self.objects)
+        self.update_graph()
         self.graph.print(axes=axes, frame=frame,
                          frame_formatter=frame_formatter)
 
     def undo(self):
         self.objects.remove(-1)
+
+    def update_graph(self):
+        self.reset_graph()
+        for obj in self.objects:
+            try:
+                obj.update()
+            except:
+                pass
+        self.graph.add_objects(self.objects)
 
 
 class Draw:

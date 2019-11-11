@@ -13,16 +13,16 @@ class Block(Canvas):
     def _add_frame(self):
         self.graph = add_frame(self.graph, formatter=self.frame_formatter)
 
-    def _reset(self):
-        self.reset_graph()
-        if self.framed:
-            self._add_frame()
-        self.graph.add_objects(self.objects)
-
     def show(self, axes=False):
-        self._reset()
+        self.update()
         self.graph.print(axes=axes, frame=False)
 
     def set_frame_formatter(self, formatter):
         self.frame_formatter = formatter
-        self._reset()
+        self.update()
+    
+    def update(self):
+        self.reset_graph()
+        if self.framed:
+            self._add_frame()
+        self.graph.add_objects(self.objects)
