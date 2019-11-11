@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name=' '.join(['charcad', VERSION]),
+    name='charcad',
     packages=['charcad'],
     version=VERSION,
     license='MIT',
@@ -17,7 +17,7 @@ setup(
     author='Victor Zoni',
     author_email='vczoni@gmail.com',
     url='https://github.com/vczoni/charcad',
-    download_url='https://github.com/user/reponame/archive/v_01.tar.gz',
+    download_url=VERSION.join(['https://github.com/vczoni/charcad/archive/v', '.tar.gz']),
     keywords=['CHARACTER', 'DRAWING', 'BASIC'],
     install_requires=requirements,
     python_requires='>=3',
