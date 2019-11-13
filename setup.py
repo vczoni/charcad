@@ -1,12 +1,10 @@
 from setuptools import setup
 
-with open('charcad/version.py') as f:
-    exec(f.read())
+exec(open('charcad/version.py', 'r').read())
 
 VERSION = __version__
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+requirements = open('requirements.txt', 'r').read().splitlines()
 
 setup(
     name='charcad',
