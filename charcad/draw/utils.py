@@ -56,6 +56,8 @@ def assign_aspect(value, aspect):
             if aspect == 'color':
                 formatter.color = value
             if aspect == 'bgcolor':
+                if formatter.color == '38':
+                    formatter.color = '30'
                 formatter.background_color = value
         return wrapper
     return deco

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 exec(open('charcad/version.py', 'r').read())
 
@@ -8,14 +8,15 @@ requirements = open('requirements.txt', 'r').read().splitlines()
 
 setup(
     name='charcad',
-    packages=['charcad'],
+    packages=find_packages(),
     version=VERSION,
     license='MIT',
     description='Character-based drawing tool',
     author='Victor Zoni',
     author_email='vczoni@gmail.com',
     url='https://github.com/vczoni/charcad',
-    download_url=VERSION.join(['https://github.com/vczoni/charcad/archive/v', '.tar.gz']),
+    download_url=VERSION.join(
+        ['https://github.com/vczoni/charcad/archive/v', '.tar.gz']),
     keywords=['CHARACTER', 'DRAWING', 'BASIC'],
     install_requires=requirements,
     python_requires='>=3',
