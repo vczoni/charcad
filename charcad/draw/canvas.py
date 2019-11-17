@@ -17,7 +17,7 @@ class Canvas(GraphicObject):
     def add_object(self, obj, x=None, y=None, coord=None):
         if not coord is None:
             obj.set_coordinates(coord)
-        elif all([x, y]):
+        elif x is not None and y is not None:
             obj.set_coordinates(x, y)
         self.objects.add(obj)
 
