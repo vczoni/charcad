@@ -51,14 +51,7 @@ def force_list(var):
 def assign_aspect(value, aspect):
     def deco(formatter):
         def wrapper():
-            if aspect == 'style':
-                formatter.style = value
-            if aspect == 'color':
-                formatter.color = value
-            if aspect == 'bgcolor':
-                if formatter.color == '38':
-                    formatter.color = '30'
-                formatter.background_color = value
+            formatter.__dict__[aspect] = value
         return wrapper
     return deco
 
@@ -83,15 +76,15 @@ COLORS = {
     'none':     assign_aspect('38', 'color'),
 }
 BACKGROUND_COLORS = {
-    'black':    assign_aspect('40m', 'bgcolor'),
-    'red':      assign_aspect('41m', 'bgcolor'),
-    'green':    assign_aspect('42m', 'bgcolor'),
-    'yellow':   assign_aspect('43m', 'bgcolor'),
-    'blue':     assign_aspect('44m', 'bgcolor'),
-    'purple':   assign_aspect('45m', 'bgcolor'),
-    'cyan':     assign_aspect('46m', 'bgcolor'),
-    'white':    assign_aspect('47m', 'bgcolor'),
-    'none':     assign_aspect('48m', 'bgcolor'),
+    'black':    assign_aspect('40m', 'background'),
+    'red':      assign_aspect('41m', 'background'),
+    'green':    assign_aspect('42m', 'background'),
+    'yellow':   assign_aspect('43m', 'background'),
+    'blue':     assign_aspect('44m', 'background'),
+    'purple':   assign_aspect('45m', 'background'),
+    'cyan':     assign_aspect('46m', 'background'),
+    'white':    assign_aspect('47m', 'background'),
+    'none':     assign_aspect('48m', 'background'),
 }
 
 
@@ -102,25 +95,33 @@ class Formatter:
             [aspects.update({key: val(outer)}) for key, val in aspects.items()]
             self.__dict__ = aspects
 
-    def __init__(self):
-        # init aspacts
+    def __init__(self, style=None, color=None, background=None):
+        # init default aspects
         self.style = None
         self.color = None
-        self.background_color = None
+        self.background = None
         # formats
         self.set_style = self._AspectSetter(self, STYLES)
         self.set_color = self._AspectSetter(self, COLORS)
-        self.set_background_color = self._AspectSetter(self, BACKGROUND_COLORS)
-        # config
-        self.set_style.none()
-        self.set_color.none()
-        self.set_background_color.none()
+        self.set_background = self._AspectSetter(self, BACKGROUND_COLORS)
+        # config style
+        if style is None:
+            style = 'none'
+        STYLES[style](self)()
+        # config color
+        if color is None:
+            color = 'none'
+        COLORS[color](self)()
+        # config background
+        if background is None:
+            background = 'none'
+        BACKGROUND_COLORS[background](self)()
 
     def __repr__(self):
         return self.format('Hello! I am Formatter ' + str(id(self)))
 
     def format(self, text):
-        fmt = [self.style, self.color, self.background_color]
+        fmt = [self.style, self.color, self.background]
         if all(fmt):
             text_out = (';'.join(fmt) + text).join(ESCAPE)
         else:
