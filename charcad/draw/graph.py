@@ -121,7 +121,7 @@ class Graph:
         self.grid = grid
 
     def __repr__(self):
-        return '\n'.join([''.join(row) for row in self.grid])
+        return self.get_str()
 
     def __len__(self):
         return len(self.grid)
@@ -185,6 +185,9 @@ class Graph:
 
     def flipud(self, yi):
         return self.h - yi - 1
+
+    def get_str(self):
+        return '\n'.join([''.join(row) for row in self.grid])
 
     def inspect(self):
         [print(item) for item in [row for row in self.grid]]
